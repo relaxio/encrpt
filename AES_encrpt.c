@@ -28,6 +28,7 @@
 //  Encrypt:       502 cycles =    51.0 mbits/sec
 //  Decrypt:       506 cycles =    50.6 mbits/sec
 //  Mean:          504 cycles =    50.8 mbits/sec
+//  代码运行实例 http://ideone.com/r0Cmsx
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
