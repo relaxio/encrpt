@@ -36,24 +36,27 @@
 typedef unsigned char u1byte;
 typedef unsigned long u4byte;
 
-u1byte pow_tab[256];            //指数表
-u1byte log_tab[256];            //对数表
-u1byte sbx_tab[256];            //S盒
-u1byte isb_tab[256];            //逆S盒子
-u4byte rco_tab[ 10];            //轮常数
-u4byte ft_tab[4][256];            //查S盒与列混合复合表
-u4byte it_tab[4][256];            //查逆S盒与逆列混合复合表
-u1byte tab_gen = 0;                //标记是否生成表
-u4byte k_len = 0;                //密钥长，字为单位
+u1byte pow_tab[256];        //指数表
+u1byte log_tab[256];        //对数表
+u1byte sbx_tab[256];        //S盒
+u1byte isb_tab[256];        //逆S盒子
+u4byte rco_tab[ 10];        //轮常数
+u4byte ft_tab[4][256];      //查S盒与列混合复合表
+u4byte it_tab[4][256];      //查逆S盒与逆列混合复合表
+u1byte tab_gen = 0;         //标记是否生成表
+u4byte k_len = 0;           //密钥长，字为单位
 
 #define LARGE_TABLES
 
 #ifdef LARGE_TABLES
-    u4byte fl_tab[4][256];        //S盒4字节大表，第二维表示表项值字节所处位置，其余3字节填0
+    u4byte fl_tab[4][256];   
+    //S盒4字节大表，第二维表示表项值字节所处位置，其余3字节填0
+    
     u4byte il_tab[4][256];
 #endif
 
-#define ff_mult(a, b)    ((a) && (b) ? pow_tab[(log_tab[a] + log_tab[b]) % 255] : 0)
+#define ff_mult(a, b)    \
+            ((a) && (b) ? pow_tab[(log_tab[a] + log_tab[b]) % 255] : 0)
 #define byte(x, i) (((x) >> ((i) << 3)) & 0x000000ff)
 #define rotl(t, n) (((t) >> (32-n)) | ((t) << n))
 #define rotr(t, n) (((t) << (32-n)) | ((t) >> n))
@@ -63,7 +66,7 @@ void gen_tabs(void)
     u4byte  i, t;
     u1byte  p, q;   
 
-    for(i = 0,p = 1; i < 256; ++i)                        //生成对数表和指数表
+    for(i = 0,p = 1; i < 256; ++i)      //生成对数表和指数表
     {
         pow_tab[i] = (u1byte)p; log_tab[p] = (u1byte)i;
         p = p ^ (p << 1) ^ (p & 0x80 ? 0x01b : 0);
@@ -71,13 +74,13 @@ void gen_tabs(void)
 
     log_tab[1] = 0; p = 1;
 
-    for(i = 0; i < 10; ++i)                                //轮常数
+    for(i = 0; i < 10; ++i)             //轮常数
     {
         rco_tab[i] = p; 
         p = (p << 1) ^ (p & 0x80 ? 0x1b : 0);
     }
 
-    for(i = 0; i < 256; ++i)                            //S盒子和逆S盒子
+    for(i = 0; i < 256; ++i)            //S盒子和逆S盒子
     {   
         p = (i ? pow_tab[255 - log_tab[i]] : 0); q = p; 
         q = (q >> 7) | (q << 1); p ^= q; 
@@ -233,6 +236,10 @@ void set_key(const u1byte in_key[], const u4byte key_len)
     e_key[2] = u4byte_in(in_key +  8); 
     e_key[3] = u4byte_in(in_key + 12);
     */
+    /*e_key[0] = *(u4byte *)(&in_key[0]);
+    e_key[1] = *(u4byte *)(&in_key[4]);
+    e_key[2] = *(u4byte *)(&in_key[8]);
+    e_key[3] = *(u4byte *)(&in_key[12]);*/
     memcpy(&e_key[0], in_key,      4);
     memcpy(&e_key[1], in_key +  4, 4);
     memcpy(&e_key[2], in_key +  8, 4);
@@ -296,8 +303,10 @@ void encrypt(const u1byte in_blk[16], u1byte out_blk[16])
 {   
     u4byte  b0[4], b1[4], *kp;
 
-    //b0[0] = u4byte_in(in_blk    ) ^ e_key[0]; b0[1] = u4byte_in(in_blk +  4) ^ e_key[1];
-    //b0[2] = u4byte_in(in_blk + 8) ^ e_key[2]; b0[3] = u4byte_in(in_blk + 12) ^ e_key[3];    
+    //b0[0] = u4byte_in(in_blk     ) ^ e_key[0]; 
+    //b0[1] = u4byte_in(in_blk +  4) ^ e_key[1];
+    //b0[2] = u4byte_in(in_blk +  8) ^ e_key[2]; 
+    //b0[3] = u4byte_in(in_blk + 12) ^ e_key[3];    
     b0[0] = *(u4byte *)(&in_blk[0]) ^ e_key[0];
     b0[1] = *(u4byte *)(&in_blk[4]) ^ e_key[1];
     b0[2] = *(u4byte *)(&in_blk[8]) ^ e_key[2];
