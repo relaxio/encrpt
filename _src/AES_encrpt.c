@@ -251,16 +251,18 @@ void set_key(const u1byte in_key[], const u4byte key_len)
                     loop4(i);
                 break;
 
-        case 6: e_key[4] = u4byte_in(in_key + 16); t = e_key[5] = u4byte_in(in_key + 20);
-                //memcpy(&e_key[4], in_key + 16, 4); memcpy(&e_key[5], in_key + 20, 4); t = e_key[5];
+        case 6: e_key[4] = u4byte_in(in_key + 16); 
+                t = e_key[5] = u4byte_in(in_key + 20);
+                //memcpy(&e_key[4], in_key + 16, 4);
                 for(i = 0; i < 8; ++i) 
                     loop6(i);
                 break;
 
-        case 8: e_key[4] = u4byte_in(in_key + 16); e_key[5] = u4byte_in(in_key + 20);
-                e_key[6] = u4byte_in(in_key + 24); t = e_key[7] = u4byte_in(in_key + 28);
-                //memcpy(&e_key[4], in_key + 16, 4); memcpy(&e_key[5], in_key + 20, 4); 
-                //memcpy(&e_key[6], in_key + 24, 4); memcpy(&e_key[7], in_key + 28, 4); t = e_key[7];
+        case 8: e_key[4] = u4byte_in(in_key + 16); 
+                e_key[5] = u4byte_in(in_key + 20);
+                e_key[6] = u4byte_in(in_key + 24); 
+                t = e_key[7] = u4byte_in(in_key + 28);
+                //memcpy(&e_key[4], in_key + 16, 4);
                 for(i = 0; i < 7; ++i) 
                     loop8(i);
                 break;
@@ -328,8 +330,7 @@ void encrypt(const u1byte in_blk[16], u1byte out_blk[16])
 
     u4byte_out(out_blk,      b0[0]); u4byte_out(out_blk +  4, b0[1]);
     u4byte_out(out_blk +  8, b0[2]); u4byte_out(out_blk + 12, b0[3]);
-    //memcpy(out_blk     , &b0[0], 4);memcpy(out_blk +  4, &b0[1], 4);
-    //memcpy(out_blk +  8, &b0[2], 4);memcpy(out_blk + 12, &b0[3], 4);
+    //memcpy(out_blk     , &b0[0], 4);
 }
 
 #define i_rn(bo, bi, n, k)                          \
@@ -381,8 +382,7 @@ void decrypt(const u1byte in_blk[16], u1byte out_blk[16])
 
     u4byte_out(out_blk,     b0[0]); u4byte_out(out_blk +  4, b0[1]);
     u4byte_out(out_blk + 8, b0[2]); u4byte_out(out_blk + 12, b0[3]);    
-    //memcpy(out_blk     , &b0[0], 4);memcpy(out_blk +  4, &b0[1], 4);
-    //memcpy(out_blk +  8, &b0[2], 4);memcpy(out_blk + 12, &b0[3], 4);
+    //memcpy(out_blk     , &b0[0], 4);
 }
 
 void prtBytes(FILE *fp,u1byte byte16[],int nbit)
