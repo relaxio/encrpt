@@ -1,4 +1,4 @@
-// This is an independent implementation of the encryption algorithm:   
+﻿// This is an independent implementation of the encryption algorithm:   
 //                                                                      
 //         RIJNDAEL by Joan Daemen and Vincent Rijmen                   
 //                                                                      
@@ -34,7 +34,7 @@
 #include <string.h>
 
 typedef unsigned char u1byte;
-typedef unsigned long u4byte;
+typedef unsigned int u4byte;
 
 u1byte pow_tab[256];        //指数表
 u1byte log_tab[256];        //对数表
@@ -60,6 +60,11 @@ u4byte k_len = 0;           //密钥长，字为单位
 #define byte(x, i) (((x) >> ((i) << 3)) & 0x000000ff)
 #define rotl(t, n) (((t) >> (32-n)) | ((t) << n))
 #define rotr(t, n) (((t) << (32-n)) | ((t) >> n))
+
+#define u4byte_in(in)     \
+            (*(u4byte *)(in))
+#define u4byte_out(out, in)     \
+            (*(u4byte *)(out)) = in
 
 void gen_tabs(void)
 {   
@@ -230,20 +235,14 @@ void set_key(const u1byte in_key[], const u4byte key_len)
         gen_tabs();
 
     k_len = (key_len + 31) / 32;
-    /*
+    
     e_key[0] = u4byte_in(in_key     ); 
     e_key[1] = u4byte_in(in_key +  4);
     e_key[2] = u4byte_in(in_key +  8); 
     e_key[3] = u4byte_in(in_key + 12);
-    */
-    /*e_key[0] = *(u4byte *)(&in_key[0]);
-    e_key[1] = *(u4byte *)(&in_key[4]);
-    e_key[2] = *(u4byte *)(&in_key[8]);
-    e_key[3] = *(u4byte *)(&in_key[12]);*/
-    memcpy(&e_key[0], in_key,      4);
-    memcpy(&e_key[1], in_key +  4, 4);
-    memcpy(&e_key[2], in_key +  8, 4);
-    memcpy(&e_key[3], in_key + 12, 4);
+
+    //e_key[0] = *(u4byte *)(&in_key[0]);
+    //memcpy(&e_key[0], in_key,      4);
 
     switch(k_len)
     {
@@ -252,16 +251,16 @@ void set_key(const u1byte in_key[], const u4byte key_len)
                     loop4(i);
                 break;
 
-        case 6: //e_key[4] = u4byte_in(in_key + 16); t = e_key[5] = u4byte_in(in_key + 20);
-                memcpy(&e_key[4], in_key + 16, 4); memcpy(&e_key[5], in_key + 20, 4); t = e_key[5];
+        case 6: e_key[4] = u4byte_in(in_key + 16); t = e_key[5] = u4byte_in(in_key + 20);
+                //memcpy(&e_key[4], in_key + 16, 4); memcpy(&e_key[5], in_key + 20, 4); t = e_key[5];
                 for(i = 0; i < 8; ++i) 
                     loop6(i);
                 break;
 
-        case 8: //e_key[4] = u4byte_in(in_key + 16); e_key[5] = u4byte_in(in_key + 20);
-                //e_key[6] = u4byte_in(in_key + 24); t = e_key[7] = u4byte_in(in_key + 28);
-                memcpy(&e_key[4], in_key + 16, 4); memcpy(&e_key[5], in_key + 20, 4); 
-                memcpy(&e_key[6], in_key + 24, 4); memcpy(&e_key[7], in_key + 28, 4); t = e_key[7];
+        case 8: e_key[4] = u4byte_in(in_key + 16); e_key[5] = u4byte_in(in_key + 20);
+                e_key[6] = u4byte_in(in_key + 24); t = e_key[7] = u4byte_in(in_key + 28);
+                //memcpy(&e_key[4], in_key + 16, 4); memcpy(&e_key[5], in_key + 20, 4); 
+                //memcpy(&e_key[6], in_key + 24, 4); memcpy(&e_key[7], in_key + 28, 4); t = e_key[7];
                 for(i = 0; i < 7; ++i) 
                     loop8(i);
                 break;
@@ -303,14 +302,11 @@ void encrypt(const u1byte in_blk[16], u1byte out_blk[16])
 {   
     u4byte  b0[4], b1[4], *kp;
 
-    //b0[0] = u4byte_in(in_blk     ) ^ e_key[0]; 
-    //b0[1] = u4byte_in(in_blk +  4) ^ e_key[1];
-    //b0[2] = u4byte_in(in_blk +  8) ^ e_key[2]; 
-    //b0[3] = u4byte_in(in_blk + 12) ^ e_key[3];    
-    b0[0] = *(u4byte *)(&in_blk[0]) ^ e_key[0];
-    b0[1] = *(u4byte *)(&in_blk[4]) ^ e_key[1];
-    b0[2] = *(u4byte *)(&in_blk[8]) ^ e_key[2];
-    b0[3] = *(u4byte *)(&in_blk[12]) ^ e_key[3];
+    b0[0] = u4byte_in(in_blk     ) ^ e_key[0]; 
+    b0[1] = u4byte_in(in_blk +  4) ^ e_key[1];
+    b0[2] = u4byte_in(in_blk +  8) ^ e_key[2]; 
+    b0[3] = u4byte_in(in_blk + 12) ^ e_key[3];    
+    //b0[0] = *(u4byte *)(&in_blk[0]) ^ e_key[0];
 
     kp = e_key + 4;
 
@@ -330,10 +326,10 @@ void encrypt(const u1byte in_blk[16], u1byte out_blk[16])
     f_nround(b1, b0, kp); f_nround(b0, b1, kp);
     f_nround(b1, b0, kp); f_lround(b0, b1, kp);
 
-    //u4byte_out(out_blk,      b0[0]); u4byte_out(out_blk +  4, b0[1]);
-    //u4byte_out(out_blk +  8, b0[2]); u4byte_out(out_blk + 12, b0[3]);
-    memcpy(out_blk     , &b0[0], 4);memcpy(out_blk +  4, &b0[1], 4);
-    memcpy(out_blk +  8, &b0[2], 4);memcpy(out_blk + 12, &b0[3], 4);
+    u4byte_out(out_blk,      b0[0]); u4byte_out(out_blk +  4, b0[1]);
+    u4byte_out(out_blk +  8, b0[2]); u4byte_out(out_blk + 12, b0[3]);
+    //memcpy(out_blk     , &b0[0], 4);memcpy(out_blk +  4, &b0[1], 4);
+    //memcpy(out_blk +  8, &b0[2], 4);memcpy(out_blk + 12, &b0[3], 4);
 }
 
 #define i_rn(bo, bi, n, k)                          \
@@ -359,14 +355,11 @@ void decrypt(const u1byte in_blk[16], u1byte out_blk[16])
 {   
     u4byte  b0[4], b1[4], *kp;
     
-    //b0[0] = u4byte_in(in_blk     ) ^ e_key[4 * k_len + 24]; 
-    //b0[1] = u4byte_in(in_blk +  4) ^ e_key[4 * k_len + 25];
-    //b0[2] = u4byte_in(in_blk +  8) ^ e_key[4 * k_len + 26]; 
-    //b0[3] = u4byte_in(in_blk + 12) ^ e_key[4 * k_len + 27];    
-    b0[0] = *(u4byte *)(&in_blk[0]) ^ e_key[4 * k_len + 24];
-    b0[1] = *(u4byte *)(&in_blk[4]) ^ e_key[4 * k_len + 25];
-    b0[2] = *(u4byte *)(&in_blk[8]) ^ e_key[4 * k_len + 26];
-    b0[3] = *(u4byte *)(&in_blk[12])^ e_key[4 * k_len + 27];
+    b0[0] = u4byte_in(in_blk     ) ^ e_key[4 * k_len + 24]; 
+    b0[1] = u4byte_in(in_blk +  4) ^ e_key[4 * k_len + 25];
+    b0[2] = u4byte_in(in_blk +  8) ^ e_key[4 * k_len + 26]; 
+    b0[3] = u4byte_in(in_blk + 12) ^ e_key[4 * k_len + 27];    
+    //b0[0] = *(u4byte *)(&in_blk[0]) ^ e_key[4 * k_len + 24];
     
     kp = d_key + 4 * (k_len + 5);
 
@@ -386,10 +379,10 @@ void decrypt(const u1byte in_blk[16], u1byte out_blk[16])
     i_nround(b1, b0, kp); i_nround(b0, b1, kp);
     i_nround(b1, b0, kp); i_lround(b0, b1, kp);
 
-    //u4byte_out(out_blk,     b0[0]); u4byte_out(out_blk +  4, b0[1]);
-    //u4byte_out(out_blk + 8, b0[2]); u4byte_out(out_blk + 12, b0[3]);    
-    memcpy(out_blk     , &b0[0], 4);memcpy(out_blk +  4, &b0[1], 4);
-    memcpy(out_blk +  8, &b0[2], 4);memcpy(out_blk + 12, &b0[3], 4);
+    u4byte_out(out_blk,     b0[0]); u4byte_out(out_blk +  4, b0[1]);
+    u4byte_out(out_blk + 8, b0[2]); u4byte_out(out_blk + 12, b0[3]);    
+    //memcpy(out_blk     , &b0[0], 4);memcpy(out_blk +  4, &b0[1], 4);
+    //memcpy(out_blk +  8, &b0[2], 4);memcpy(out_blk + 12, &b0[3], 4);
 }
 
 void prtBytes(FILE *fp,u1byte byte16[],int nbit)
