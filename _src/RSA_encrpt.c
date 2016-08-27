@@ -11,7 +11,7 @@
 
 typedef unsigned char  u1byte;
 typedef unsigned short u2byte;
-typedef unsigned long  u4byte;
+typedef unsigned int  u4byte;
 
 #define U1K_FMT 0x10
 #define U1K_NOE 0x20
@@ -855,7 +855,7 @@ int main(void)
     mul(&tt, &p, &q); memcpy(N.val, tt.val, 128);
     t2 = clock();
     printf("N = p*q\n"); prtBigInt(&N, U1K_NOE); printf("\n");
-    printf("耗时：%dms\n", t2 - t1);
+    printf("耗时：%fms\n", ((t2 - t1) * 1.0) / CLOCKS_PER_SEC * 1000);
 
     //计算phi
     memcpy(tp.val, p.val, 128); memcpy(tq.val, q.val, 128);
@@ -864,7 +864,7 @@ int main(void)
     mul(&tt, &tp, &tq); memcpy(phi.val, tt.val, 128);
     t2 = clock();
     printf("phi = (p-1)*(q-1)\n"); prtBigInt(&phi, U1K_NOE); printf("\n");
-    printf("耗时：%dms\n", t2 - t1);
+    printf("耗时：%fms\n", ((t2 - t1) * 1.0) / CLOCKS_PER_SEC * 1000);
 
     printf("e =\n"); prtBigInt(&e, U1K_NOE); printf("\n");
 
@@ -873,7 +873,7 @@ int main(void)
     modInv(&d, &e, &phi);
     t2 = clock();
     printf("d = e^-1 mod phi\n"); prtBigInt(&d, U1K_NOE); printf("\n");
-    printf("耗时：%dms\n", t2 - t1);
+    printf("耗时：%fms\n", ((t2 - t1) * 1.0) / CLOCKS_PER_SEC * 1000);
 
     //加密
     printf("m =\n"); prtBigInt(&m, U1K_NOE); printf("\n");
@@ -881,7 +881,7 @@ int main(void)
     monExp(&c, &m, &e, &N);
     t2 = clock();
     printf("c = m^e mod N\n"); prtBigInt(&c, U1K_NOE); printf("\n");
-    printf("耗时：%dms\n", t2 - t1);
+    printf("耗时：%fms\n", ((t2 - t1) * 1.0) / CLOCKS_PER_SEC * 1000);
     
     //解密
     t1 = clock();
@@ -889,7 +889,7 @@ int main(void)
     t2 = clock();
 
     printf("m1 = c^d mod N\n"); prtBigInt(&m1, U1K_NOE); printf("\n");
-    printf("耗时：%dms\n", t2 - t1);
+    printf("耗时：%fms\n", ((t2 - t1) * 1.0) / CLOCKS_PER_SEC * 1000);
 
     //system("pause");
     return 0;
